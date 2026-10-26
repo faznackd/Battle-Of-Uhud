@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Battle of Uhud – Decision Simulation</title>
+<style>
+:root{--bg:#f6f1e6;--card:#fffdf8;--ink:#2b2418;--mut:#6b6150;--line:#e0d6bf;--blue:#2f6fb5;--red:#b83a32;--gold:#c8962b;--ok:#2e7d4f;--bad:#b83a32;--sand:#ead9a8;--hill:#b9a37a;--mtn:#8c7a5b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d1a14;--card:#27231b;--ink:#f1e9d6;--mut:#b5a98e;--line:#41392a;--blue:#6aa6e6;--red:#e2675d;--gold:#e1b24a;--ok:#5cc08a;--bad:#e2675d;--sand:#3a3220;--hill:#6f6249;--mtn:#54482f}}
+:root[data-theme="dark"]{--bg:#1d1a14;--card:#27231b;--ink:#f1e9d6;--mut:#b5a98e;--line:#41392a;--blue:#6aa6e6;--red:#e2675d;--gold:#e1b24a;--ok:#5cc08a;--bad:#e2675d;--sand:#3a3220;--hill:#6f6249;--mtn:#54482f}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 Georgia,"Times New Roman",serif}
+.wrap{max-width:760px;margin:0 auto;padding:16px}
+h1{font-size:1.6rem;margin:.2em 0}
+h2{font-size:1.25rem;margin:.2em 0 .4em}
+.sub{color:var(--mut);margin:0 0 12px;font-family:system-ui,sans-serif;font-size:.9rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0}
+.map{background:var(--sand);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+svg{display:block;width:100%;height:auto}
+.g{transition:transform 1.2s ease,opacity .8s ease}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-family:system-ui,sans-serif;font-size:.8rem}
+.bar{height:10px;background:var(--line);border-radius:6px;overflow:hidden;margin-top:3px}
+.bar i{display:block;height:100%;width:50%;transition:width .8s}
+button{font:inherit;font-family:system-ui,sans-serif;font-size:.98rem;text-align:left;width:100%;background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:12px 14px;margin:6px 0;cursor:pointer}
+button:hover:not(:disabled){border-color:var(--blue)}
+button.primary{background:var(--blue);color:#fff;border-color:var(--blue);text-align:center;font-weight:600}
+button:disabled{opacity:.55;cursor:default}
+.fb{border-left:5px solid var(--gold);padding:8px 12px;margin-top:10px;background:var(--bg);border-radius:6px}
+.fb.good{border-color:var(--ok)}.fb.bad{border-color:var(--bad)}
+.tag{display:inline-block;font-family:system-ui,sans-serif;font-size:.75rem;background:var(--gold);color:#111;border-radius:20px;padding:2px 10px;font-weight:700}
+.fact{font-family:system-ui,sans-serif;font-size:.88rem;color:var(--mut);margin-top:8px}
+.key{display:flex;gap:12px;flex-wrap:wrap;font-family:system-ui,sans-serif;font-size:.78rem;padding:6px 10px;color:var(--mut)}
+.key b{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
+ul{padding-left:20px}
+</style></head><body><div class="wrap">
+<h1>⚔️ The Battle of Uhud</h1>
+<p class="sub">Year 7 History · Madinah, Shawwal 3 AH (March 625 CE) · You are an advisor to the Muslim community. Your choices matter!</p>
+
+<div class="map">
+<svg viewBox="0 0 400 250" role="img" aria-label="Map of the battlefield at Uhud">
+ <polygon points="0,0 400,0 400,70 300,45 220,60 120,35 0,60" fill="var(--mtn)"/>
+ <text x="14" y="26" font-size="12" fill="var(--bg)" font-family="system-ui">Mount Uhud</text>
+ <polygon points="235,110 275,50 315,110" fill="var(--hill)"/>
+ <text x="238" y="125" font-size="10" fill="var(--ink)" font-family="system-ui">Rumat hill</text>
+ <rect x="14" y="198" width="26" height="22" fill="var(--hill)"/><rect x="44" y="204" width="22" height="16" fill="var(--hill)"/><rect x="70" y="196" width="28" height="24" fill="var(--hill)"/>
+ <text x="14" y="236" font-size="11" fill="var(--ink)" font-family="system-ui">Madinah</text>
+ <g id="mus" class="g"><circle r="9" cx="0" cy="0" fill="var(--blue)"/><circle r="9" cx="14" cy="8" fill="var(--blue)"/><circle r="9" cx="-12" cy="9" fill="var(--blue)"/><text x="-16" y="30" font-size="10" fill="var(--ink)" font-family="system-ui">Muslims</text></g>
+ <g id="qur" class="g"><circle r="9" cx="0" cy="0" fill="var(--red)"/><circle r="9" cx="14" cy="8" fill="var(--red)"/><circle r="9" cx="-12" cy="9" fill="var(--red)"/><circle r="9" cx="6" cy="-14" fill="var(--red)"/><text x="-18" y="30" font-size="10" fill="var(--ink)" font-family="system-ui">Quraysh</text></g>
+ <g id="arc" class="g" opacity="0"><circle r="5" cx="0" cy="0" fill="var(--gold)"/><circle r="5" cx="10" cy="3" fill="var(--gold)"/><circle r="5" cx="-10" cy="3" fill="var(--gold)"/><text x="-18" y="18" font-size="9" fill="var(--ink)" font-family="system-ui">Archers</text></g>
+ <g id="khl" class="g" opacity="0"><path d="M0,0 L-70,60" stroke="var(--red)" stroke-width="4" stroke-dasharray="6 4"/><polygon points="-70,60 -58,56 -66,48" fill="var(--red)"/><text x="4" y="-4" font-size="10" fill="var(--ink)" font-family="system-ui">Khalid’s cavalry</text></g>
+</svg>
+<div class="key"><span><b style="background:var(--blue)"></b>Muslim army</span><span><b style="background:var(--red)"></b>Quraysh army</span><span><b style="background:var(--gold)"></b>Archers</span></div>
+</div>
+
+<div class="card stats" aria-label="Your community scores">
+ <div>🤝 Unity<div class="bar"><i id="b0" style="background:var(--blue)"></i></div></div>
+ <div>📏 Discipline<div class="bar"><i id="b1" style="background:var(--gold)"></i></div></div>
+ <div>💪 Morale<div class="bar"><i id="b2" style="background:var(--ok)"></i></div></div>
+</div>
+
+<div class="card" id="scene"></div>
+</div>
+<script>
+const S={u:50,d:50,m:50,hill:false,stay:false};
+const $=id=>document.getElementById(id);
+function pos(id,x,y,show){const e=$(id);e.style.transform=`translate(${x}px,${y}px)`;e.setAttribute('opacity',show===false?0:1)}
+function stats(){['u','d','m'].forEach((k,i)=>$('b'+i).style.width=Math.max(5,Math.min(100,S[k]))+'%')}
+function map(p){pos('mus',...p.m);pos('qur',...p.q);pos('arc',...(p.a||[0,0]),!!p.a);pos('khl',...(p.k||[0,0]),!!p.k)}
+function adj(e){for(const k in e)S[k]+=e[k];stats()}
+
+const scenes=[
+{tag:'Background',t:'Why are we here?',
+ txt:`In 624 CE the Muslims won the Battle of Badr. The Quraysh of Makkah wanted revenge. Led by Abu Sufyan, about <b>3,000 soldiers</b> marched on Madinah. The Muslims had only about <b>1,000</b> men. You are at the council meeting in Madinah.`,
+ map:{m:[60,180],q:[330,200]},next:'Start the council ▶'},
+{tag:'Decision 1',t:'The Council in Madinah',
+ txt:`The Prophet ﷺ asks everyone for advice (this is called <b>shura</b>). Some say, “Stay inside Madinah and defend the city.” Many young men who missed Badr say, “Let us go out and fight at Uhud!”<br><b>What do you advise?</b>`,
+ map:{m:[60,180],q:[330,200]},
+ opts:[
+  {l:'Stay in Madinah and defend from inside',e:{u:-5},r:'bad',fb:`A sensible military idea – and in fact the Prophet ﷺ himself first favoured it. But the majority wanted to go out. Once the decision was made by shura, he put on his armour and led the army out. Listening to everyone’s views, then acting together, was important.`},
+  {l:'Listen to the majority and march out to Uhud',e:{u:+10,m:+10},r:'good',fb:`This is what happened. After consultation, the community followed the majority view and marched out. Making decisions together builds unity.`}]},
+{tag:'Decision 2',t:'A Third of the Army Turns Back',
+ txt:`On the road, <b>Abdullah ibn Ubayy</b> suddenly leaves with about <b>300 men</b>, saying, “They did not listen to me.” Your army shrinks to about <b>700</b>. Some soldiers are worried.<br><b>What do you do?</b>`,
+ map:{m:[150,150],q:[330,200]},
+ opts:[
+  {l:'Go home too – we are too few',e:{m:-20,u:-15},r:'bad',fb:`If everyone had left, the community would have been left open to attack. The Prophet ﷺ continued with the 700 who stayed loyal. Courage when things look hard is a key lesson of Uhud.`},
+  {l:'Keep going with those who are loyal',e:{m:+10,u:+5},r:'good',fb:`Correct – the Muslims continued with 700 men and camped at Mount Uhud with the mountain behind them.`}]},
+{tag:'Decision 3',t:'Where Should the Archers Stand?',
+ txt:`The mountain protects your back, but there is a gap in the hills at <b>Mount Rumat</b>. Quraysh cavalry, led by the brilliant <b>Khalid ibn al-Walid</b>, could ride through it and attack from behind.<br>You have <b>50 archers</b>. <b>Where do you place them?</b>`,
+ map:{m:[170,125],q:[330,200],a:[200,150]},
+ opts:[
+  {l:'On Mount Rumat, guarding the gap',e:{d:+20},r:'good',hill:true,fb:`Yes! The Prophet ﷺ placed 50 archers on the hill under <b>Abdullah ibn Jubayr</b>. This was a clever plan to protect the army’s back.`},
+  {l:'With the main army so we have more fighters',e:{d:-15},r:'bad',hill:false,fb:`That would leave the gap open! In reality, the Prophet ﷺ placed the archers on the hill. The gap was the army’s biggest weakness.`}]},
+{tag:'Decision 4',t:'The Early Victory',
+ txt:`The battle begins. Hamza, Ali and Abu Dujana fight bravely. The Quraysh <b>break and run</b>! Your archers see the enemy camp left behind with lots of goods (called <b>ghanima</b>, spoils). Some archers shout, “The battle is won – let’s go and collect it!”<br>The Prophet ﷺ had told them: <i>“Do not leave your place, whether you see us winning or losing.”</i><br><b>What do you tell the archers?</b>`,
+ map:{m:[230,175],q:[345,225],a:[275,85]},
+ opts:[
+  {l:'Stay! Obey the order, even in victory',e:{d:+25,m:+10},r:'good',stay:true,fb:`That is exactly what Abdullah ibn Jubayr told them. But in real history, <b>most of the archers (about 40) left</b>. Only Abdullah and a few others stayed.`},
+  {l:'Go! The battle is won, so join the spoils',e:{d:-35,u:-10},r:'bad',stay:false,fb:`This is what most of the archers did in real life. They believed the fight was over. It was a mistake that changed the whole battle.`}]},
+{tag:'Turning Point',t:'Khalid Strikes!',dyn:true},
+{tag:'Aftermath',t:'What Happened Next',dyn2:true}];
+
+let i=0;
+function render(){
+ const s=scenes[i],el=$('scene');
+ let h=`<span class="tag">${s.tag}</span><h2>${s.t}</h2>`;
+ if(s.dyn){
+  if(S.hill&&S.stay){map({m:[240,150],q:[335,215],a:[275,85]});
+   h+=`<p>Khalid ibn al-Walid charges toward the gap… but <b>your archers are still on the hill</b>! Arrows rain down and the cavalry is driven back. In your version of history, the Muslims keep their advantage.</p><div class="fb good">🌟 <b>What‑if history:</b> This did not actually happen. In the real battle the archers left, and Khalid took the gap.</div>`;adj({m:+15});}
+  else{map({m:[225,150],q:[300,120],k:[280,85],a:[0,0]});$('arc').setAttribute('opacity',0);
+   h+=`<p>Khalid sees that the hill is <b>almost empty</b>. His cavalry charges through the gap and hits the Muslims <b>from behind</b>. Abdullah ibn Jubayr and the few archers who stayed are overwhelmed. The Muslim army is trapped between two enemy forces and falls into confusion. A rumour spreads that the Prophet ﷺ has been killed.</p><div class="fb bad">⚠️ Leaving the post turned a near-victory into a hard defeat.</div>`;adj({m:-25,u:-10});}
+  h+=`<button class="primary" onclick="go()">See the results ▶</button>`;
+ }else if(s.dyn2){
+  map({m:[190,170],q:[330,200]});
+  h+=`<p><b>What really happened:</b></p><ul>
+   <li>About <b>70 Muslims were martyred</b>, including the Prophet’s uncle <b>Hamza ibn Abd al‑Muttalib</b> and Mus‘ab ibn Umayr.</li>
+   <li>The Prophet ﷺ was injured but survived. Brave companions such as Talha, Abu Dujana and Nusayba bint Ka‘b protected him.</li>
+   <li>The Muslims regrouped on the mountain. The Quraysh did <b>not</b> take Madinah and went home.</li>
+   <li>The Qur’an (Surah Al ‘Imran) taught the believers lessons about obedience, patience and trust in Allah.</li></ul>
+   <p class="fact">Your final scores — Unity: ${S.u} · Discipline: ${S.d} · Morale: ${S.m}</p>
+   <h2>🧠 Check your understanding</h2><div id="q"></div>`;
+ }else{
+  map(s.map);h+=`<p>${s.txt}</p>`;
+  if(s.opts)h+=s.opts.map((o,k)=>`<button onclick="pick(${k})">${String.fromCharCode(65+k)}. ${o.l}</button>`).join('');
+  else h+=`<button class="primary" onclick="go()">${s.next}</button>`;
+  h+=`<div id="out"></div>`;
+ }
+ el.innerHTML=h;
+ if(s.dyn2)quiz();
+ stats();
+}
+function go(){i++;render();window.scrollTo({top:0,behavior:'smooth'})}
+function pick(k){
+ const o=scenes[i].opts[k];
+ adj(o.e);
+ if('hill' in o)S.hill=o.hill;if('stay' in o)S.stay=o.stay;
+ document.querySelectorAll('#scene button').forEach(b=>b.disabled=true);
+ $('out').innerHTML=`<div class="fb ${o.r}"><b>${o.r==='good'?'✅ Wise choice':'⚠️ Think again'}</b><br>${o.fb}</div><button class="primary" onclick="go()">Continue ▶</button>`;
+}
+const Q=[
+ {q:'How many archers did the Prophet ﷺ place on the hill?',o:['10','50','100'],a:1},
+ {q:'Who led the Quraysh cavalry that attacked from behind?',o:['Abu Sufyan','Khalid ibn al‑Walid','Abu Jahl'],a:1},
+ {q:'What is the BIGGEST lesson from the archers’ mistake?',o:['Always collect spoils quickly','Obey instructions even when you think you are winning','Never fight on hills'],a:1}];
+function quiz(){
+ $('q').innerHTML=Q.map((x,n)=>`<p><b>${n+1}. ${x.q}</b></p>`+x.o.map((t,k)=>`<button onclick="ans(this,${n},${k})">${t}</button>`).join('')+`<div id="r${n}"></div>`).join('')+`<button class="primary" onclick="restart()">↻ Play again and try different choices</button>`;
+}
+function ans(b,n,k){
+ const ok=Q[n].a===k;
+ b.parentNode.querySelectorAll('button').forEach(x=>{});
+ $('r'+n).innerHTML=`<div class="fb ${ok?'good':'bad'}">${ok?'✅ Correct!':'❌ Not quite – try another answer.'}</div>`;
+}
+function restart(){Object.assign(S,{u:50,d:50,m:50,hill:false,stay:false});i=0;render();window.scrollTo({top:0,behavior:'smooth'})}
+render();
+</script></body></html>
